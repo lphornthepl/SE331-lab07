@@ -3,6 +3,7 @@ package camt.cbsd.lab05.controller;
 import camt.cbsd.lab05.entity.Student;
 import camt.cbsd.lab05.service.StudentService;
 import camt.cbsd.lab05.service.StudentServiceImpl;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.http.HttpStatus;
@@ -20,6 +21,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalTime;
 import java.util.List;
 
 @RestController
@@ -86,9 +88,14 @@ public class StudentController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }try{
             byte[] bytes = file.getBytes();
-            Path path = Paths.get(imageServerDir+file.getOriginalFilename());
+            //Path path = Paths.get(imageServerDir+file.getOriginalFilename());
+            String oldFilename = file.getOriginalFilename();
+            String ext = FilenameUtils.getExtension(oldFilename);
+            String newFilename = Integer.toString(LocalTime.now().hashCode(),16)+Integer.toString(oldFilename.hashCode(),16)
+                    +"."+ext;
+            Path path = Paths.get(imageServerDir+newFilename);
             Files.write(path,bytes);
-            return ResponseEntity.ok(file.getOriginalFilename());
+            return ResponseEntity.ok(newFilename);
         }catch (IOException e){
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
